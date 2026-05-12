@@ -150,36 +150,43 @@ int main() {
             if(persenGula <= 70) {
                 printf("Status : AMAN\n");
                 printf("Saran  : Konsumsi gula masih dalam batas aman.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else if(persenGula <= 100) {
                 printf("Status : WASPADA\n");
                 printf("Saran  : Kurangi makanan/minuman manis hari ini.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else {
                 printf("Status : BAHAYA\n");
                 printf("Saran  : Konsumsi gula berlebihan, perbanyak air putih dan hindari makanan manis lainnya.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
             }
-
             printf("\n==> NATRIUM <==\n");
             if(persenNatrium <= 70) {
                 printf("Status : AMAN\n");
                 printf("Saran  : Kadar natrium masih aman untuk dikonsumsi.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat:  https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else if(persenNatrium <= 100) {
                 printf("Status : WASPADA\n");
                 printf("Saran  : Kurangi makanan asin atau instan.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else {
                 printf("Status : BAHAYA\n");
                 printf("Saran  : Natrium terlalu tinggi, hindari makanan tinggi garam.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
             }
-
             printf("\n==> LEMAK <==\n");
             if(persenLemak <= 70) {
                 printf("Status : AMAN\n");
                 printf("Saran  : Lemak masih dalam batas normal.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else if(persenLemak <= 100) {
                 printf("Status : WASPADA\n");
                 printf("Saran  : Kurangi makanan berminyak dan gorengan.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
             } else {
                 printf("Status : BAHAYA\n");
                 printf("Saran  : Lemak berlebihan, perbanyak aktivitas fisik dan konsumsi makanan sehat.\n");
+                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
             }
             printf("=====================================\n");
         }
@@ -257,7 +264,7 @@ float hitungServing() {
         return 0;
     }
     printf("=====================================\n");
-    
+
     Serving_Dikonsumsi = Pieces_Dikonsumsi / Pieces_Persajian;
 
     return Serving_Dikonsumsi;
