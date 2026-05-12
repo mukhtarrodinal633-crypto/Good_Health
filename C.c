@@ -1,6 +1,16 @@
 #include <stdio.h>
 #include <string.h>
 
+float hitungServing();
+
+void Nilai_Gizi();
+int Gula_Total;
+int Natrium_Total;
+int Karbo_Total;
+int Lemak_Total;
+int Lemak_Jenuh;
+int Protein_Total;
+
 void Identitas_Produk();
 
 char Nama_Produk[100];
@@ -9,6 +19,9 @@ int Jumlah_Persajian;
 int main() {
 
     int pilihanProduk, pilihanUmur;
+    int gula, natrium, lemakJenuh;
+    int pilihanPieces;
+    float Serving_Dikonsumsi;
     int gula, natrium, lemak;
 
     printf("\n==>> Tampilkan Menu Produk <<==\n");
@@ -81,6 +94,32 @@ int main() {
         printf("Batas Maksimum Lemak    : %d gram\n", lemak);
 
         Identitas_Produk();
+        Nilai_Gizi();
+        printf("\n==>> Informasi Konsumsi <<==\n");
+        if(pilihanProduk == 1) {
+        	printf("Apakah sajian memiliki jumlah pieces?\n");
+        	printf("1. Ya\n");
+        	printf("2. Tidak\n");
+        	printf("Pilih menu: ");
+        	scanf("%d", &pilihanPieces);
+        	if(pilihanPieces == 1) {
+        		Serving_Dikonsumsi = hitungServing();
+			}
+			else{
+				printf("Jumlah Serving yang Dikomsumsi: ");
+				scanf("%f", &Serving_Dikonsumsi);
+			}
+		}
+		else {
+			printf("Jumlah Serving yang Diminum: ");
+			scanf("%f", &Serving_Dikonsumsi);
+		}
+		if(Serving_Dikonsumsi > Jumlah_Persajian){
+			printf("\nJumlah Konsumsi Melebihi Total Sajian Dalam Kemasan");
+		}
+		else{
+			//belum
+		}
 
     } else if (pilihanProduk == 3) {
         printf("Terima kasih telah menggunakan layanan kami!\n");
@@ -103,4 +142,37 @@ void Identitas_Produk() {
     printf("Jumlah Persajian  : %d\n", Jumlah_Persajian);
 
     printf("\n==>> Nilai Gizi per Persajian <<==\n");
+}
+void Nilai_Gizi() {
+	printf("Gula Total: ");
+	scanf("%d", &Gula_Total);
+	printf("Natrium: ");
+	scanf("%d", &Natrium_Total);
+	printf("Karbohidrat: ");
+	scanf("%d", &Karbo_Total);
+	printf("Lemak Total: ");
+	scanf("%d", &Lemak_Total);
+	printf("Lemak Jenuh: ");
+	scanf("%d", &Lemak_Jenuh);
+	printf("Protein: ");
+	scanf("%d", &Protein_Total);
+	
+	printf("\nGula Total        : %d\n", Gula_Total);
+	printf("Natrium           : %d\n", Natrium_Total);
+	printf("Karbohidrat       : %d\n", Karbo_Total);
+	printf("Lemak Total       : %d\n", Lemak_Total);
+	printf("Lemak Jenuh       : %d\n", Lemak_Jenuh);
+	printf("Protein           : %d\n", Protein_Total);
+}
+
+float hitungServing(){
+	float Pieces_Dikonsumsi;
+	float Pieces_Persajian;
+	float Serving_Dikonsumsi;
+	printf("\nJumlah Pieces Per Sajian: ");
+	scanf("%f", &Pieces_Persajian);
+	printf("Jumlah Pieces yang Dikonsumsi: ");
+	scanf("%f", &Pieces_Dikonsumsi);
+	Serving_Dikonsumsi = Pieces_Dikonsumsi/Pieces_Persajian;
+	return Serving_Dikonsumsi;
 }
