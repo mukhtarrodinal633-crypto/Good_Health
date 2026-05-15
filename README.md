@@ -1,4 +1,4 @@
-# Good Heltah
+# Good Health
 
 ## SDG 3: Good Health and Well-Being.
 Program ini akan meminta pengguna memasukkan informasi kandungan nutrisi dari makanan cepat saji atau minuman, seperti jumlah gula, sodium, lemak, ukuran per saji, serta berapa banyak yang dikonsumsi. 
