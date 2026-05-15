@@ -1,6 +1,14 @@
-# Good_Health
+# SDG 3: Good Health and Well-Being
+## Implementasi SDG 3: Good Health and Well-Being Melalui Program Analisis Batas Konsumsi Berdasarkan Takaran Saji Pada Makanan dan Minuman Kemasan
 
-## SDG 3: Good Health and Well-Being. 
+Disusun Oleh:
+Kelompok 5 HERMES
+- Cristian (2506550822)
+- Haikel Zaki Nurfaiz	(2506533394)
+- Rodinal Mukhtar Aulya	(2506553263)
+- Thoriq Muhammad Fatih	(2506549410)
+
+### Definisi
 
 SDG 3 bertujuan untuk memastikan kehidupan yang sehat dan meningkatkan kesejahteraan bagi semua orang, di segala usia. Selain itu, SDG 3 bertujuan untuk mencegah penderitaan yang tidak perlu akibat penyakit yang dapat dicegah serta kematian dini dengan berfokus pada sasaran-sasaran utama yang meningkatkan kesehatan populasi suatu negara secara keseluruhan.
 
