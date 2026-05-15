@@ -68,10 +68,13 @@ int main(){
     do{
 
         // MENU
+        
+        printf("\n=====================================\n");
         printf("> Pilihan Jenis Produk\n");
         printf("1. Makanan\n");
         printf("2. Minuman\n");
         printf("3. Exit\n");
+        printf("=====================================\n");
 
         printf("\nMasukkan jenis produk yang diinginkan: ");
         scanf("%d", &jenis_produk);
@@ -90,7 +93,7 @@ int main(){
 
         // INPUT KATEGORI UMUR
         do{
-
+            
             printf("\n> Pilih Kategori Umur\n");
             printf("1. Anak-anak (5-12 tahun)\n");
             printf("2. Remaja (13-17 tahun)\n");
@@ -104,8 +107,6 @@ int main(){
             }
 
         } while(kategori_umur < 1 || kategori_umur > 3);
-
-        printf("=====================================\n");
 
         // MENAMPILKAN INFORMASI BATAS KONSUMSI
         if(kategori_umur == 1){
