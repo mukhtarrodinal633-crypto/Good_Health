@@ -8,8 +8,6 @@ Kelompok 5 HERMES
 - Rodinal Mukhtar Aulya	(2506553263)
 - Thoriq Muhammad Fatih	(2506549410)
 
----
-
 ## Informasi Singkat
 
 SDG 3 bertujuan untuk memastikan kehidupan yang sehat dan meningkatkan kesejahteraan bagi semua orang, di segala usia. Selain itu, SDG 3 bertujuan untuk mencegah penderitaan yang tidak perlu akibat penyakit yang dapat dicegah serta kematian dini dengan berfokus pada sasaran-sasaran utama yang meningkatkan kesehatan populasi suatu negara secara keseluruhan.
@@ -22,7 +20,6 @@ Program ini membantu pengguna mengetahui apakah jumlah konsumsi mereka masih dal
 - Analisis gula, natrium, dan lemak jenuh
 - Status konsumsi: Aman, Waspada, Bahaya
 - Perhitungan energi total
-- Mendukung makanan dan minuman
 
 ## Bahasa Pemrograman
 - C Programming Language
