@@ -1,271 +1,286 @@
 #include <stdio.h>
 #include <string.h>
 
-float hitungServing();
+// 1. ENUM untuk tipe data kategori agar kode lebih readable
+typedef enum { FOOD = 1, BEVERAGE, EXIT } ProductType;
+typedef enum { CHILD = 1, TEEN, ADULT } AgeCategory;
+typedef enum { SAFE, WARNING, DANGER } HealthStatus;
 
-void Nilai_Gizi();
-int Gula_Total;
-int Natrium_Total;
-int Karbo_Total;
-int Lemak_Total;
-int Lemak_Jenuh;
-int Protein_Total;
+// 2. STRUCT untuk mengelompokkan informasi nilai gizi (Nutrisi)
+typedef struct {
+    float total_fat;
+    float saturated_fat;
+    float protein;
+    float carbohydrates;
+    float sugar;
+    float sodium;
+} Nutrition;
 
-void Identitas_Produk();
-char Nama_Produk[100];
-int Jumlah_Persajian;
+// 3. UNION untuk efisiensi memori pada input porsi (karena makanan vs minuman berbeda metode)
+typedef union {
+    struct {
+        int has_pieces;
+        float pieces_per_serving;
+        float pieces_consumed;
+        float portion_size; // bagian kemasan (1, 0.5, 0.25)
+    } food_detail;
+    float beverage_consumed_ml;
+} ServingDetail;
+
+// 4. STRUCT Utama untuk membungkus semua data produk
+typedef struct {
+    char name[100];
+    ProductType type;
+    AgeCategory age_cat;
+    float servings_per_pack;
+    float serving_size; // gram atau mL
+    float serving_consumed; // hitungan SD (serving dikonsumsi)
+    float total_consumed; // hitungan gram/mL dikonsumsi
+    ServingDetail details;
+    Nutrition base_nutr;  // per sajian
+    Nutrition total_nutr; // total dikonsumsi
+    float total_calories;
+    Nutrition akg_percentage;
+    float calorie_percentage;
+    HealthStatus status;
+} ProductAnalysis;
+
+// 5. STRUCT untuk master data batas harian (Bentuk Array Objek)
+typedef struct {
+    int max_sugar;
+    int max_sodium;
+    int max_sat_fat;
+    int calorie_need;
+    char label[20];
+} LimitConfig;
+
+// Master Data Batas Harian berdasarkan indeks Kategori Umur (menggunakan array)
+const LimitConfig AGE_LIMITS[] = {
+    {0, 0, 0, 0, "None"}, // Dummy indeks 0
+    {25, 1200, 10, 1400, "Anak-anak"}, // Indeks 1 (CHILD)
+    {40, 1500, 15, 2000, "Remaja"},    // Indeks 2 (TEEN)
+    {50, 2000, 20, 2150, "Dewasa"}     // Indeks 3 (ADULT)
+};
+
+// String bantuan untuk output status
+const char* STATUS_STR[] = {"AMAN", "WASPADA", "BAHAYA"};
+
+// 6. PROTOTIPE FUNGSI (Menggunakan Pointer untuk Efisiensi)
+void display_header();
+void get_age_category(AgeCategory *age_cat);
+void display_limits(AgeCategory age_cat);
+void process_serving(ProductAnalysis *prod);
+void calculate_nutrition(ProductAnalysis *prod);
+void determine_status_and_advice(const ProductAnalysis *prod, char *analysis_text, char *advice_text);
+void display_output(const ProductAnalysis *prod, const char *analysis, const char *advice);
 
 int main() {
-    int pilihanProduk, pilihanUmur;
-    int gula, natrium, lemak;
-    char pilihanPieces;
-    float Serving_Dikonsumsi;
+    ProductAnalysis prod;
+    char analysis_msg[1000];
+    char advice_msg[3000];
 
-    printf("\n=====================================\n");
-    printf("==>> Tampilkan Menu Produk <<==\n");
-    printf("1. Makanan\n");
-    printf("2. Minuman\n");
-    printf("3. EXIT\n");
-    printf("Pilih menu: ");
-    if(scanf("%d", &pilihanProduk) != 1) {
-        printf("Input harus berupa angka!\n");
-        return 0;
-    }
-    printf("=====================================\n");
+    display_header();
 
-    if (pilihanProduk == 1 || pilihanProduk == 2) {
-        printf("\n=====================================\n");
-        printf("==>> Pilih Kategori Umur <<==\n");
-        printf("1. Anak-Anak 8-12 Tahun\n");
-        printf("2. Remaja 13-17 Tahun\n");
-        printf("3. Dewasa 18+ Tahun\n");
-        printf("Pilih kategori umur: ");
-        if(scanf("%d", &pilihanUmur) != 1) {
-            printf("Input harus berupa angka!\n");
-            return 0;
+    while (1) {
+        printf("> Pilihan Jenis Produk\n1. Makanan\n2. Minuman\n3. Exit\n\nMasukkan jenis produk: ");
+        int input_type;
+        scanf("%d", &input_type);
+        prod.type = (ProductType)input_type;
+
+        if (prod.type == EXIT) {
+            printf("\nTerima kasih telah menggunakan program kami!\n");
+            break;
         }
-        printf("=====================================\n");
-
-        if (pilihanUmur == 1) {
-            gula = 40;
-            natrium = 1500;
-            lemak = 50;
-
-            printf("\n=====================================\n");
-            printf("Kategori: Anak-Anak\n");
-            printf("Gula     : 25 - 40 gram\n");
-            printf("Natrium  : 1000 - 1500 mg\n");
-            printf("Lemak    : 35 - 50 gram\n");
-            printf("=====================================\n");
-
-        } else if (pilihanUmur == 2) {
-            gula = 50;
-            natrium = 2000;
-            lemak = 67;
-
-            printf("\n=====================================\n");
-            printf("Kategori: Remaja\n");
-            printf("Gula     : 40 - 50 gram\n");
-            printf("Natrium  : 1500 - 2000 mg\n");
-            printf("Lemak    : 50 - 67 gram\n");
-            printf("=====================================\n");
-
-        } else if (pilihanUmur == 3) {
-            gula = 50;
-            natrium = 2000;
-            lemak = 67;
-
-            printf("\n=====================================\n");
-            printf("Kategori: Dewasa\n");
-            printf("Gula     : Maksimal 50 gram\n");
-            printf("Natrium  : Maksimal 2000 mg\n");
-            printf("Lemak    : Maksimal 67 gram\n");
-            printf("=====================================\n");
-
-        } else {
-            printf("Pilihan tidak valid!\n");
-            return 0;
+        if (prod.type < FOOD || prod.type > EXIT) {
+            printf("\nInput jenis produk salah!\n\n");
+            continue;
         }
 
-        printf("\n=====================================\n");
-        printf("==>> Informasi Batas Gizi Produk <<==\n");
-        printf("Batas Maksimum Gula     : %d gram\n", gula);
-        printf("Batas Maksimum Natrium  : %d mg\n", natrium);
-        printf("Batas Maksimum Lemak    : %d gram\n", lemak);
-        printf("=====================================\n");
+        // Panggil fungsi dengan melempar Alamat Memori (Pointer)
+        get_age_category(&prod.age_cat);
+        display_limits(prod.age_cat);
 
-        Identitas_Produk();
-        Nilai_Gizi();
+        printf("\nMasukkan nama produk: ");
+        scanf(" %[^\n]", prod.name);
+        printf("Masukkan jumlah sajian per kemasan: ");
+        scanf("%f", &prod.servings_per_pack);
 
-        printf("\n=====================================\n");
-        printf("==>> Informasi Konsumsi <<==\n");
-        if(pilihanProduk == 1) {
-            printf("Apakah sajian memiliki jumlah pieces? (y/n): ");
-            scanf(" %c", &pilihanPieces);
-            printf("=====================================\n");
-
-            if(pilihanPieces == 'y' || pilihanPieces == 'Y') {
-                Serving_Dikonsumsi = hitungServing();
-
-            } else if(pilihanPieces == 'n' || pilihanPieces == 'N') {
-                printf("Jumlah Serving yang Dikonsumsi: ");
-
-                if(scanf("%f", &Serving_Dikonsumsi) != 1) {
-                    printf("Input harus berupa angka!\n");
-                    return 0;
-                }
-            } else {
-                printf("Input harus y atau n!\n");
-                return 0;
-            }
-        } else {
-            printf("Jumlah Serving yang Diminum: ");
-            if(scanf("%f", &Serving_Dikonsumsi) != 1) {
-                printf("Input harus berupa angka!\n");
-                return 0;
-            }
-        }
-        if(Serving_Dikonsumsi > Jumlah_Persajian) {
-            printf("\nJumlah konsumsi melebihi total sajian dalam kemasan!\n");
-        } else {
-
-            float Total_Gula = Gula_Total * Serving_Dikonsumsi;
-            float Total_Natrium = Natrium_Total * Serving_Dikonsumsi;
-            float Total_Lemak = Lemak_Total * Serving_Dikonsumsi;
-
-            printf("\n=====================================\n");
-            printf("==>> Total Gizi yang Dikonsumsi <<==\n");
-            printf("Total Gula      : %.2f gram\n", Total_Gula);
-            printf("Total Natrium   : %.2f mg\n", Total_Natrium);
-            printf("Total Lemak     : %.2f gram\n", Total_Lemak);
-            printf("=====================================\n");
-
-            printf("\n=====================================\n");
-            printf("==>> Status Konsumsi <<==\n");
-            float persenGula = (Total_Gula / gula) * 100;
-            float persenNatrium = (Total_Natrium / natrium) * 100;
-            float persenLemak = (Total_Lemak / lemak) * 100;
-
-            printf("\n==> GULA <==\n");
-            if(persenGula <= 70) {
-                printf("Status : AMAN\n");
-                printf("Saran  : Konsumsi gula masih dalam batas aman.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else if(persenGula <= 100) {
-                printf("Status : WASPADA\n");
-                printf("Saran  : Kurangi makanan/minuman manis hari ini.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else {
-                printf("Status : BAHAYA\n");
-                printf("Saran  : Konsumsi gula berlebihan, perbanyak air putih dan hindari makanan manis lainnya.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
-            }
-            printf("\n==> NATRIUM <==\n");
-            if(persenNatrium <= 70) {
-                printf("Status : AMAN\n");
-                printf("Saran  : Kadar natrium masih aman untuk dikonsumsi.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat:  https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else if(persenNatrium <= 100) {
-                printf("Status : WASPADA\n");
-                printf("Saran  : Kurangi makanan asin atau instan.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else {
-                printf("Status : BAHAYA\n");
-                printf("Saran  : Natrium terlalu tinggi, hindari makanan tinggi garam.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
-            }
-            printf("\n==> LEMAK <==\n");
-            if(persenLemak <= 70) {
-                printf("Status : AMAN\n");
-                printf("Saran  : Lemak masih dalam batas normal.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else if(persenLemak <= 100) {
-                printf("Status : WASPADA\n");
-                printf("Saran  : Kurangi makanan berminyak dan gorengan.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.who.int/news-room/fact-sheets/detail/healthy-diet\n");
-            } else {
-                printf("Status : BAHAYA\n");
-                printf("Saran  : Lemak berlebihan, perbanyak aktivitas fisik dan konsumsi makanan sehat.\n");
-                printf("Ikuti Laman Ini untuk Hidup Lebih Sehat: https://www.heart.org/en/healthy-living\n");
-            }
-            printf("=====================================\n");
-        }
-    } else if (pilihanProduk == 3) {
-        printf("Terima kasih telah menggunakan layanan kami!\n");
-    } else {
-        printf("Pilihan tidak valid!\n");
+        process_serving(&prod);
+        calculate_nutrition(&prod);
+        determine_status_and_advice(&prod, analysis_msg, advice_msg);
+        display_output(&prod, analysis_msg, advice_msg);
     }
     return 0;
 }
-void Identitas_Produk() {
-    printf("\n=====================================\n");
-    printf("==>> Identitas Dan Jumlah Persajian Produk <<==\n");
-    printf("Nama Produk: ");
-    scanf(" %[^\n]", Nama_Produk);
 
-    printf("Jumlah Persajian: ");
-
-    if(scanf("%d", &Jumlah_Persajian) != 1) {
-        printf("Input harus berupa angka!\n");
-        return;
-    }
-    printf("\nNama Produk       : %s\n", Nama_Produk);
-    printf("Jumlah Persajian  : %d\n", Jumlah_Persajian);
-    printf("=====================================\n");
+void display_header() {
+    printf("===================================================\n");
+    printf("          PROGRAM ANALISIS BATAS KONSUMSI\n");
+    printf("       Berdasarkan Takaran Saji Pada Kemasan\n");
+    printf("===================================================\n\n");
 }
-void Nilai_Gizi() {
-    printf("\n=====================================\n");
-    printf("==>> Nilai Gizi per Persajian <<==\n");
-    printf("Gula Total (gram): ");
-    scanf("%d", &Gula_Total);
 
-    printf("Natrium (mg): ");
-    scanf("%d", &Natrium_Total);
-
-    printf("Karbohidrat (gram): ");
-    scanf("%d", &Karbo_Total);
-
-    printf("Lemak Total (gram): ");
-    scanf("%d", &Lemak_Total);
-
-    printf("Lemak Jenuh (gram): ");
-    scanf("%d", &Lemak_Jenuh);
-
-    printf("Protein (gram): ");
-    scanf("%d", &Protein_Total);
-    printf("=====================================\n");
-
-    printf("\n=====================================\n");
-    printf("==>> Informasi Nilai Gizi <<==\n");
-    printf("Gula Total      : %d gram\n", Gula_Total);
-    printf("Natrium         : %d mg\n", Natrium_Total);
-    printf("Karbohidrat     : %d gram\n", Karbo_Total);
-    printf("Lemak Total     : %d gram\n", Lemak_Total);
-    printf("Lemak Jenuh     : %d gram\n", Lemak_Jenuh);
-    printf("Protein         : %d gram\n", Protein_Total);
-    printf("=====================================\n");
+// Implementasi Pointer untuk memutasi data secara langsung
+void get_age_category(AgeCategory *age_cat) {
+    int input_age;
+    do {
+        printf("\n> Pilih Kategori Umur\n1. Anak-anak (5-12 tahun)\n2. Remaja (13-17 tahun)\n3. Dewasa (18+ tahun)\n\nMasukkan kategori umur Anda: ");
+        scanf("%d", &input_age);
+        if (input_age < 1 || input_age > 3) {
+            printf("\nInput kategori umur salah!\n");
+        }
+    } while (input_age < 1 || input_age > 3);
+    *age_cat = (AgeCategory)input_age;
 }
-float hitungServing() {
-    float Pieces_Dikonsumsi;
-    float Pieces_Persajian;
-    float Serving_Dikonsumsi;
 
-    printf("\n=====================================\n");
-    printf("Jumlah Pieces Per Sajian: ");
+// Implementasi Array pembacaan data konfigurasi umur
+void display_limits(AgeCategory age_cat) {
+    printf("\n===============================================\n");
+    printf("> Menampilkan Batas Harian Kategori %s\n\n", AGE_LIMITS[age_cat].label);
+    printf("Gula             : %d gram\n", AGE_LIMITS[age_cat].max_sugar);
+    printf("Natrium          : %d mg\n", AGE_LIMITS[age_cat].max_sodium);
+    printf("Lemak jenuh      : %d gram\n", AGE_LIMITS[age_cat].max_sat_fat);
+    printf("Kebutuhan energi : %d kkal/hari\n", AGE_LIMITS[age_cat].calorie_need);
+    printf("===============================================\n");
+}
 
-    if(scanf("%f", &Pieces_Persajian) != 1) {
-        printf("Input harus berupa angka!\n");
-        return 0;
+// Implementasi UNION & Pointer
+void process_serving(ProductAnalysis *prod) {
+    if (prod->type == FOOD) {
+        printf("\nMasukkan takaran saji makanan (gram): ");
+        scanf("%f", &prod->serving_size);
+        printf("\nApakah terdapat jumlah pieces?\n1. Ya\n2. Tidak\n\n> ");
+        scanf("%d", &prod->details.food_detail.has_pieces);
+
+        if (prod->details.food_detail.has_pieces == 1) {
+            printf("\nMasukkan jumlah pieces per saji: ");
+            scanf("%f", &prod->details.food_detail.pieces_per_serving);
+            printf("Masukkan jumlah pieces yang dikonsumsi: ");
+            scanf("%f", &prod->details.food_detail.pieces_consumed);
+
+            prod->serving_consumed = prod->details.food_detail.pieces_consumed / prod->details.food_detail.pieces_per_serving;
+        } else {
+            printf("\nBerapa bagian kemasan yang dikonsumsi?\n1    = seluruh kemasan\n0.5  = setengah kemasan\n0.25 = seperempat kemasan\n\n> ");
+            scanf("%f", &prod->details.food_detail.portion_size);
+
+            prod->serving_consumed = prod->servings_per_pack * prod->details.food_detail.portion_size;
+        }
+        prod->total_consumed = prod->serving_consumed * prod->serving_size;
+    } else if (prod->type == BEVERAGE) {
+        printf("\nMasukkan takaran saji minuman (mL): ");
+        scanf("%f", &prod->serving_size);
+        printf("Masukkan jumlah minuman yang dikonsumsi (mL): ");
+        scanf("%f", &prod->details.beverage_consumed_ml);
+
+        prod->serving_consumed = prod->details.beverage_consumed_ml / prod->serving_size;
+        prod->total_consumed = prod->details.beverage_consumed_ml;
     }
-    printf("Jumlah Pieces yang Dikonsumsi: ");
+}
 
-    if(scanf("%f", &Pieces_Dikonsumsi) != 1) {
-        printf("Input harus berupa angka!\n");
-        return 0;
+void calculate_nutrition(ProductAnalysis *prod) {
+    printf("\n---\n\nMasukkan Lemak Total per sajian (gram): ");
+    scanf("%f", &prod->base_nutr.total_fat);
+    printf("Masukkan Lemak Jenuh per sajian (gram): ");
+    scanf("%f", &prod->base_nutr.saturated_fat);
+    printf("Masukkan Protein per sajian (gram): ");
+    scanf("%f", &prod->base_nutr.protein);
+    printf("Masukkan Karbohidrat Total per sajian (gram): ");
+    scanf("%f", &prod->base_nutr.carbohydrates);
+    printf("Masukkan Gula Total per sajian (gram): ");
+    scanf("%f", &prod->base_nutr.sugar);
+    printf("Masukkan Natrium per sajian (mg): ");
+    scanf("%f", &prod->base_nutr.sodium);
+    printf("\n---\n");
+
+    // Kalkulasi Berbasis Pointer Struct
+    float sd = prod->serving_consumed;
+    prod->total_nutr.total_fat = prod->base_nutr.total_fat * sd;
+    prod->total_nutr.saturated_fat = prod->base_nutr.saturated_fat * sd;
+    prod->total_nutr.protein = prod->base_nutr.protein * sd;
+    prod->total_nutr.carbohydrates = prod->base_nutr.carbohydrates * sd;
+    prod->total_nutr.sugar = prod->base_nutr.sugar * sd;
+    prod->total_nutr.sodium = prod->base_nutr.sodium * sd;
+
+    prod->total_calories = (prod->total_nutr.carbohydrates * 4) + (prod->total_nutr.protein * 4) + (prod->total_nutr.total_fat * 9);
+    
+    // Hitung Persentase AKG menggunakan Master Array
+    LimitConfig limits = AGE_LIMITS[prod->age_cat];
+    prod->calorie_percentage = (prod->total_calories / limits.calorie_need) * 100;
+    prod->akg_percentage.sugar = (prod->total_nutr.sugar / limits.max_sugar) * 100;
+    prod->akg_percentage.sodium = (prod->total_nutr.sodium / limits.max_sodium) * 100;
+    prod->akg_percentage.saturated_fat = (prod->total_nutr.saturated_fat / limits.max_sat_fat) * 100;
+}
+
+void determine_status_and_advice(const ProductAnalysis *prod, char *analysis_text, char *advice_text) {
+    // 1. Tentukan Analisis Konsumsi Kemasan
+    if (prod->serving_consumed > prod->servings_per_pack) {
+        strcpy(analysis_text, "Jumlah konsumsi melebihi sajian per kemasan.");
+    } else if (prod->serving_consumed == prod->servings_per_pack) {
+        strcpy(analysis_text, "Jumlah konsumsi sesuai sajian per kemasan.");
+    } else {
+        strcpy(analysis_text, "Jumlah konsumsi masih di bawah sajian per kemasan.");
     }
-    printf("=====================================\n");
 
-    Serving_Dikonsumsi = Pieces_Dikonsumsi / Pieces_Persajian;
+    // 2. Tentukan Status Kesehatan (Aman / Waspada / Bahaya)
+    HealthStatus final_status = SAFE;
+    if (prod->akg_percentage.sugar > 100 || prod->akg_percentage.sodium > 100 || prod->akg_percentage.saturated_fat > 100) {
+        final_status = DANGER;
+    } else if (prod->akg_percentage.sugar >= 70 || prod->akg_percentage.sodium >= 70 || prod->akg_percentage.saturated_fat >= 70) {
+        final_status = WARNING;
+    }
+    // Menggunakan Pointer (Mutasi langsung status di dalam Objek utama)
+    ((ProductAnalysis*)prod)->status = final_status;
 
-    return Serving_Dikonsumsi;
+    // 3. Ambil Teks Saran Berdasarkan Kombinasi Enum Status & Tipe Produk
+    if (final_status == SAFE) {
+        if (prod->type == FOOD) {
+            strcpy(advice_text, "Konsumsi makanan masih dalam batas aman berdasarkan jumlah gula, natrium, dan lemak jenuh yang dikonsumsi... \n> Baca selengkapnya: https://www.who.int/news-room/fact-sheets/detail/healthy-diet");
+        } else {
+            strcpy(advice_text, "Konsumsi minuman masih dalam batas aman berdasarkan jumlah gula, natrium, dan lemak jenuh yang dikonsumsi... \n> Baca selengkapnya: https://www.who.int/news-room/fact-sheets/detail/healthy-diet");
+        }
+    } else if (final_status == WARNING) {
+        if (prod->type == FOOD) {
+            strcpy(advice_text, "Jumlah konsumsi makanan mulai mendekati batas harian yang direkomendasikan... \n> Baca selengkapnya: https://www.who.int/news-room/fact-sheets/detail/healthy-diet");
+        } else {
+            strcpy(advice_text, "Jumlah konsumsi minuman mulai mendekati batas harian yang direkomendasikan... \n> Baca selengkapnya: https://www.heart.org/en/healthy-living");
+        }
+    } else {
+        if (prod->type == FOOD) {
+            strcpy(advice_text, "Jumlah konsumsi makanan telah melebihi batas harian yang direkomendasikan... \n> Baca selengkapnya: https://www.who.int/news-room/fact-sheets/detail/healthy-diet");
+        } else {
+            strcpy(advice_text, "Jumlah konsumsi minuman telah melebihi batas harian yang direkomendasikan... \n> Baca selengkapnya: https://www.heart.org/en/healthy-living");
+        }
+    }
+}
+
+void display_output(const ProductAnalysis *prod, const char *analysis, const char *advice) {
+    printf("\n=====================================================\n");
+    printf("              HASIL ANALISIS KONSUMSI\n");
+    printf("=====================================================\n\n");
+    printf("Nama produk                    : %s\n", prod->name);
+    printf("Kategori umur                  : %s\n", AGE_LIMITS[prod->age_cat].label);
+    printf("Jumlah %s dikonsumsi      : %.2f %s\n", (prod->type == FOOD) ? "makanan" : "minuman", prod->total_consumed, (prod->type == FOOD) ? "gram" : "mL");
+    printf("Jumlah sajian dikonsumsi       : %.2f sajian\n", prod->serving_consumed);
+
+    printf("\nTOTAL KANDUNGAN GIZI\n");
+    printf("Lemak total                    : %.2f gram\n", prod->total_nutr.total_fat);
+    printf("Lemak jenuh                    : %.2f gram\n", prod->total_nutr.saturated_fat);
+    printf("Protein                        : %.2f gram\n", prod->total_nutr.protein);
+    printf("Karbohidrat total              : %.2f gram\n", prod->total_nutr.carbohydrates);
+    printf("Gula total                     : %.2f gram\n", prod->total_nutr.sugar);
+    printf("Natrium                        : %.2f mg\n", prod->total_nutr.sodium);
+
+    printf("\nPERSENTASE BATAS HARIAN\n");
+    printf("Persentase gula                : %.2f%%\n", prod->akg_percentage.sugar);
+    printf("Persentase natrium             : %.2f%%\n", prod->akg_percentage.sodium);
+    printf("Persentase lemak jenuh         : %.2f%%\n", prod->akg_percentage.saturated_fat);
+
+    printf("\nTOTAL ENERGI\n");
+    printf("Total energi dikonsumsi        : %.2f kkal\n", prod->total_calories);
+    printf("Persentase kebutuhan energi    : %.2f%%\n", prod->calorie_percentage);
+
+    printf("\nAnalisis konsumsi:\n%s\n", analysis);
+    printf("\nStatus konsumsi:\n%s\n", STATUS_STR[prod->status]);
+    printf("\nSaran:\n%s\n", advice);
+    printf("\n=====================================================\n\n");
 }
